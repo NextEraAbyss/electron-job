@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 额外的样式重置，确保消除底部白色区域 */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  #app {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
 /* 自定义工具类 */
 @layer utilities {
   .line-clamp-1 {

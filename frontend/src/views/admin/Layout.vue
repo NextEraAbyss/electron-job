@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-screen bg-gray-100 min-w-[1024px] min-h-[600px]">
+  <div class="flex h-screen w-full bg-gray-100 min-w-[1024px] min-h-screen overflow-hidden">
     <!-- 侧边栏 -->
-    <div class="w-64 bg-white shadow-lg flex-shrink-0">
+    <div class="w-48 bg-white shadow-lg flex-shrink-0 h-full">
       <div class="p-4 border-b">
         <h1 class="text-xl font-bold text-gray-800">管理系统</h1>
       </div>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- 主要内容区域 -->
-    <div class="flex-1 overflow-hidden flex flex-col min-w-0">
+    <div class="flex-1 overflow-hidden flex flex-col min-w-0 h-full">
       <!-- 顶部导航栏 -->
       <header class="bg-white shadow-sm flex-shrink-0">
         <div class="flex items-center justify-between px-6 py-4">
@@ -33,7 +33,7 @@
       </header>
 
       <!-- 内容区域 -->
-      <main class="flex-1 overflow-auto p-6 min-h-0 scrollbar-thin">
+      <main class="flex-1 overflow-auto p-6 min-h-0 scrollbar-thin bg-gray-100">
         <router-view />
       </main>
     </div>
