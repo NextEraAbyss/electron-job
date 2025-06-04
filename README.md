@@ -2,12 +2,10 @@
 
 <div align="center">
 
-[![GitHub Stars](https://img.shields.io/github/stars/dromara/electron-egg.svg?style=for-the-badge&logo=github)](https://github.com/dromara/electron-egg/stargazers)
-[![Gitee Stars](https://gitee.com/dromara/electron-egg/badge/star.svg?theme=gvp)](https://gitee.com/dromara/electron-egg/stargazers)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](./LICENSE)
-[![Version](https://img.shields.io/npm/v/ee-core.svg?style=for-the-badge)](https://www.npmjs.com/package/ee-core)
+[![GitHub Stars](https://img.shields.io/github/stars/NextEraAbyss/electron-job.svg?style=for-the-badge&logo=github)](https://github.com/NextEraAbyss/electron-job/stargazers)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
 
-<img src="./public/images/example/logo.png" width="120" height="120" alt="Electron-Egg Logo" />
+
 
 **🚀 跨平台桌面软件快速开发框架**
 
@@ -21,9 +19,9 @@
 
 ## 🌟 项目简介
 
-Electron-Egg 是一个简单易用、功能强大的桌面软件开发框架。通过Electron和现代前端技术，让每一位开发者都能快速构建跨平台桌面应用。
+Electron-Job 是一个简单易用、功能强大的桌面软件开发框架。通过Electron和现代前端技术，让每一位开发者都能快速构建跨平台桌面应用。
 
-### ✨ 为什么选择 Electron-Egg？
+### ✨ 为什么选择 Electron-Job？
 
 - 🎯 **开箱即用** - 预配置完整的开发环境，5分钟内启动项目
 - 🚀 **高性能** - 基于最新的 Electron 31 + Vue 3 + Vite 技术栈
@@ -49,6 +47,8 @@ Electron-Egg 是一个简单易用、功能强大的桌面软件开发框架。�
 - **🔧 构建工具**: Electron Builder
 - **🔄 自动更新**: Electron Updater
 - **📦 核心引擎**: ee-core 4.1+
+- **🛡️ 安全策略**: CSP (内容安全策略), 代码混淆
+- **🔌 系统集成**: 系统托盘, 原生菜单, 全局快捷键
 
 ### 开发工具
 
@@ -56,6 +56,7 @@ Electron-Egg 是一个简单易用、功能强大的桌面软件开发框架。�
 - **🐛 调试工具**: Chrome DevTools 集成
 - **📱 热重载**: 前端 + 主进程热更新
 - **📦 打包部署**: 自动化构建流程
+- **🔄 CI/CD**: GitHub Actions, Jenkins, GitLab CI
 
 ## 🚀 快速开始
 
@@ -87,7 +88,7 @@ npm run dev
 ### 🏗️ 项目结构
 
 ```
-electron-egg/
+electron-job/
 ├── 📁 frontend/              # 前端源码 (Vue3 + Vite)
 │   ├── 📁 src/
 │   │   ├── 📁 views/         # 页面组件
@@ -163,43 +164,139 @@ npm run build-m-arm64  # macOS ARM64
 | 🐧 **Linux** | Ubuntu 18.04+ | `.AppImage`, `.deb`, `.rpm` |
 | 🇨🇳 **国产OS** | UOS, Deepin, 麒麟 | `.deb`, `.rpm` |
 
-## 🎪 应用案例
+## 🚀 自动化部署
 
-我们的框架已被广泛应用于各个领域：
+### 📋 CI/CD配置
 
-### 🏢 企业应用
-- **📊 ERP 系统** - 企业资源规划管理
-- **📈 数据分析** - 实时数据可视化平台
-- **💼 OA 办公** - 企业内部办公管理系统
+```yaml
+# .github/workflows/build.yml
+name: Build and Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+```
 
-### 🎯 工具软件  
-- **📝 笔记应用** - 跨平台笔记管理工具
-- **🎨 设计工具** - 图形设计和编辑软件
-- **📱 系统工具** - 系统监控和优化工具
+### 📊 GitHub Actions完整配置
 
-### 🎮 创意应用
-- **🎵 音乐播放器** - 本地音乐管理播放
-- **🎬 视频工具** - 视频编辑和转换工具
-- **🎯 游戏辅助** - 游戏数据分析工具
+```yaml
+# .github/workflows/release.yml
+name: Build and Release
+on:
+  push:
+    tags:
+      - 'v*'
 
-## 📚 学习资源
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Build Windows
+        if: matrix.os == 'windows-latest'
+        run: npm run build-w
+      
+      - name: Build macOS
+        if: matrix.os == 'macos-latest'
+        run: npm run build-m
+      
+      - name: Build Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run build-l
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: electron-job-${{ matrix.os }}
+          path: build/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/*.exe
+            build/*.dmg
+            build/*.AppImage
+            build/*.deb
+            build/*.rpm
+```
 
-### 📖 官方文档
-- 🎯 [快速入门指南](https://www.kaka996.com/pages/e64ff6/)
-- 📘 [API 参考文档](https://www.kaka996.com/pages/api/)
-- 🛠️ [开发者指南](https://www.kaka996.com/pages/dev/)
-- 💡 [最佳实践](https://www.kaka996.com/pages/best-practice/)
+## 🛡️ 安全最佳实践
 
-### 🎥 视频教程
-- 📺 [B站教学视频](https://www.bilibili.com/video/BV1Rg411u7xH/)
-- 🎬 [项目实战演示](https://www.bilibili.com/video/BV1x44y117TT/)
-- 📖 [Golang基础教程](https://space.bilibili.com/322210472/)
+### 🔒 保护用户数据
 
-### 🔗 相关链接
-- 🌟 [ElectronJS 官网](https://www.electronjs.org/)
-- 🎨 [Vue.js 官网](https://vuejs.org/)
-- ⚡ [Vite 官网](https://vitejs.dev/)
-- 🎭 [Tailwind CSS](https://tailwindcss.com/)
+- **加密本地存储** - 敏感数据加密存储
+- **安全凭证管理** - 安全存储密钥和凭证
+- **最小权限原则** - 只请求必要的系统权限
+
+### 🛠️ 应用安全
+
+- **CSP策略** - 防止XSS攻击
+- **源码保护** - 代码混淆和加密
+- **禁用危险API** - 限制potentiallyDangerousAPI
+- **输入验证** - 防止命令注入和恶意输入
+- **安全更新机制** - 签名验证的自动更新
+
+## 🎯 性能优化
+
+### ⚡ 资源优化
+
+- **按需加载** - 模块懒加载
+- **渲染进程优化** - 减少不必要的DOM操作
+- **主进程优化** - 避免阻塞主进程
+- **内存管理** - 防止内存泄漏
+
+### 🚀 打包优化
+
+- **减小包体积** - Tree Shaking, 代码分割
+- **预编译模块** - 优化原生模块
+- **多进程构建** - 提高构建速度
+- **静态资源优化** - 压缩图片和其他静态资源
+
+## 📚 最佳实践
+
+### 🧩 架构设计
+
+- **主进程/渲染进程分离** - 清晰的职责划分
+- **模块化设计** - 功能模块化，方便扩展
+- **IPC通信优化** - 高效的进程间通信
+- **状态管理** - 使用Pinia管理应用状态
+
+### 🔄 开发工作流
+
+- **Git工作流** - 分支策略和提交规范
+- **自动化测试** - 单元测试和E2E测试
+- **文档生成** - 自动生成API文档
+- **版本管理** - 语义化版本控制
+
+## 🌎 国际化支持
+
+- **多语言支持** - i18n集成
+- **RTL布局** - 支持右到左阅读布局
+- **本地化日期和数字** - 根据地区格式化
+- **本地化资源** - 按地区加载不同资源
 
 ## 🤝 社区交流
 
@@ -225,9 +322,9 @@ npm run build-m-arm64  # macOS ARM64
 </table>
 
 ### 🔗 社交媒体
-- 📝 [知乎专栏](https://www.zhihu.com/people/electron-egg)
-- 🐦 [微博关注](https://weibo.com/electron-egg)
-- 📺 [B站频道](https://space.bilibili.com/electron-egg)
+- 📝 [知乎专栏](https://www.zhihu.com/people/electron-job)
+- 🐦 [微博关注](https://weibo.com/electron-job)
+- 📺 [B站频道](https://space.bilibili.com/electron-job)
 
 ## 🛠️ 开发指南
 
@@ -265,75 +362,39 @@ export default {
 }
 ```
 
-## 📈 路线图
-
-### 🎯 v4.2 (计划中)
-- [ ] 🔥 **React 支持** - 新增 React 技术栈选项
-- [ ] 🎨 **UI 组件库** - 内置桌面端 UI 组件
-- [ ] 🔌 **插件市场** - 官方插件生态
-- [ ] 📊 **性能面板** - 应用性能监控工具
-
-### 🚀 v5.0 (规划中)
-- [ ] ⚡ **Rust 后端** - 可选 Rust 原生模块
-- [ ] 🌐 **Web 版本** - 支持 PWA 渐进式应用
-- [ ] 🤖 **AI 集成** - 内置 AI 助手功能
-- [ ] 🎯 **低代码** - 可视化应用构建器
-
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献！
-
-### 🐛 Bug 报告
-如果您发现了 bug，请[创建 issue](https://github.com/dromara/electron-egg/issues/new) 并包含：
-- 操作系统和版本
-- Node.js 版本  
-- 详细的重现步骤
-- 错误截图或日志
-
-### 💡 功能建议
-如果您有好的想法，请[创建 feature request](https://github.com/dromara/electron-egg/issues/new)
-
-### 📝 代码贡献
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送分支 (`git push origin feature/AmazingFeature`)  
-5. 创建 Pull Request
-
 ## 📄 开源协议
 
-本项目基于 [Apache 2.0](./LICENSE) 协议开源
+本项目采用 MIT License 开源协议。
 
 ```
-Copyright 2024 Electron-Egg Contributors
+Copyright 2024 Electron-Job Contributors
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files...
 ```
 
-## 🙏 致谢
+## 🔗 相关链接 | Links
 
-### 💖 核心贡献者
-- **哆啦好梦** - 项目创始人
-- **wallace5303** - ee-core 核心开发
-- **全体贡献者** - 感谢每一位贡献者的付出
-
-### 🔗 相关项目
-- [ee-core](https://github.com/wallace5303/ee-core) - 核心引擎
-- [Dromara](https://dromara.org/) - 开源社区
-
-### 🌟 特别感谢
-感谢所有使用 Electron-Egg 的开发者和企业，你们的反馈让项目变得更好！
+- 🌐 **个人网站**: cv.wat.ink
+- 📝 **技术博客**: blog.wat.ink
+- 🛠️ **管理后台**: admin.wat.ink
+- 🔌 **API文档**: api.wat.ink
+- 👨‍💻 **GitHub**: @NextEraAbyss
+- 🦄 **Gitee**: @NextEraAbyss
 
 ---
 
 <div align="center">
 
-**🎉 如果这个项目对您有帮助，请给我们一个 ⭐ Star！**
+**🌟 如果这个项目对您有帮助，请给个 Star 支持一下！**
 
-Made with ❤️ by [Dromara Community](https://dromara.org/)
+<p>
+  <img src="https://img.shields.io/github/stars/NextEraAbyss/electron-job?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/NextEraAbyss/electron-job?style=social" alt="GitHub forks">
+</p>
+
+*Built with ❤️ by [秦若宸](https://cv.wat.ink)*
+
+**💼 展示您的全栈技术能力，成就技术人生！**
 
 </div>
